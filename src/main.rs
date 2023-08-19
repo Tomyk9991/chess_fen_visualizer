@@ -1,7 +1,7 @@
 use std::fmt::{Debug, Formatter};
 use std::str::FromStr;
 use clap::Parser;
-use crate::fen::FEN;
+use crate::fen::Fen;
 use crate::sprite_provider::SpriteProvider;
 
 mod fen;
@@ -36,10 +36,10 @@ fn main() {
 fn run() -> Result<(), Error> {
     let args = Args::parse();
 
-    let sequence = FEN::from_str(&args.configuration)?;
+    let sequence = Fen::from_str(&args.configuration)?;
     let sprite_provider = SpriteProvider::folder("./assets/")?;
 
-    let image = sequence.to_image(sprite_provider);
+    let image = sequence.to_image(sprite_provider)?;
 
     let output_path = if let Some(path) = args.output {
         path
@@ -47,7 +47,7 @@ fn run() -> Result<(), Error> {
         String::from("./Output.png")
     };
 
-    image.save(&output_path).map_err(|_| Error::IO)?;
+    image.save(output_path).map_err(|_| Error::IO)?;
     Ok(())
 }
 
@@ -56,7 +56,7 @@ impl Debug for Error {
         write!(f, "{}", match self {
             Error::IsNotFENConfig(v) => format!("{v:?}"),
             Error::CouldNotReadImages(e) => format!("Could not read the image, because: {e:?}"),
-            Error::IO => format!("Error writing to file")
+            Error::IO => "Error writing to file".to_string()
         })
     }
 }

@@ -5,7 +5,7 @@ use std::path::Path;
 use image::{DynamicImage, ImageError};
 
 pub enum Error {
-    ImageError(ImageError),
+    Image(ImageError),
     ImageNotFound(String),
     DirectoryNotFound(String),
 }
@@ -49,26 +49,27 @@ impl SpriteProvider {
         Err(Error::DirectoryNotFound(path))
     }
 
-    pub fn get_figure_ref(&self, figure: &char, color: Color) -> &DynamicImage {
-        let search_term = format!("{}{}", match color {
+    pub fn term(figure: &char, color: Color) -> String {
+        format!("{}{}", match color {
             Color::Black => "b",
             Color::White => "w"
-        }, figure);
+        }, figure)
+    }
 
-        // allowing it, since figures must be valid, otherwise ths sprite_provider structure is not constructed
-        #[allow(clippy::unwrap_used)]
-        self.figures.get(&search_term).unwrap()
+    pub fn get_figure_ref(&self, figure: &char, color: Color) -> Option<&DynamicImage> {
+        let search_term = SpriteProvider::term(figure, color);
+        self.figures.get(&search_term)
     }
 
     pub fn board(&self) -> DynamicImage {
-        return self.board.clone();
+        self.board.clone()
     }
 }
 
 impl Debug for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", match self {
-            Error::ImageError(e) => format!("{e}"),
+            Error::Image(e) => format!("{e}"),
             Error::DirectoryNotFound(path) => format!("Could not read the directory: {path}"),
             Error::ImageNotFound(path) => format!("Image not found: {path}")
         })
@@ -77,6 +78,6 @@ impl Debug for Error {
 
 impl From<ImageError> for Error {
     fn from(value: ImageError) -> Self {
-        Error::ImageError(value)
+        Error::Image(value)
     }
 }

@@ -13,8 +13,8 @@ __Options__:
 | -h, --help                          | Print help                                            |
 | -V, --version                       | Print version                                         |
 
+## Examples
 
-Examples:
 `cargo run -- -o ./Finalfile.png -c 8/8/8/4p1K1/2k1P3/8/8/8`
 
 or 
